@@ -2,30 +2,22 @@ package de.maxhenkel.storage.items;
 
 import java.util.Objects;
 
-import javax.swing.text.AbstractDocument.Content;
-
 import de.maxhenkel.storage.ChestTier;
-import de.maxhenkel.storage.Main;
 import de.maxhenkel.storage.blocks.ModBlocks;
 import de.maxhenkel.storage.blocks.ModChestBlock;
 import de.maxhenkel.storage.blocks.tileentity.ModChestTileEntity;
-import net.minecraft.block.Block;
+
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.HorizontalBlock;
-import net.minecraft.block.WoodType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
-import net.minecraft.item.Items;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.NonNullList;
@@ -37,8 +29,17 @@ public class ChestUpgrader extends Item {
 
   public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
-  public ChestUpgrader(Properties props) {
-    super(props);
+  private static final Properties PROPS = new Item.Properties().stacksTo(64).tab(ItemGroup.TAB_MISC);
+
+  private ChestTier upgraderTier;
+
+  public ChestUpgrader() {
+    super(PROPS);
+  }
+
+  public ChestUpgrader(ChestTier tier) {
+    super(PROPS);
+    this.upgraderTier = tier;
   }
 
   @Override
@@ -46,43 +47,48 @@ public class ChestUpgrader extends Item {
     World world = context.getLevel();
 
     if (!world.isClientSide) {
-      BlockPos blockPos = context.getClickedPos();
       BlockState clickedBlock = world.getBlockState(context.getClickedPos());
       PlayerEntity playerEntity = Objects.requireNonNull(context.getPlayer());
 
       // TODO look at line80 at
       // https://github.com/progwml6/ironchest/blob/1.16/src/main/java/com/progwml6/ironchest/common/item/ChestUpgradeItem.java
 
-      rightClickedOnChestState(clickedBlock, context, playerEntity, world);
+      rightClickedOnChestState(clickedBlock, context, playerEntity, world, stack);
     }
 
     return super.onItemUseFirst(stack, context);
   }
 
   private void rightClickedOnChestState(BlockState clickedBlock, ItemUseContext context, PlayerEntity playerEntity,
-      World world) {
-    if (blockIsChest(clickedBlock)) {
-      upgradeChest(playerEntity, 30, clickedBlock, world, context);
+      World world, ItemStack stack) {
+    if (blockIsChestAndUpgradable(clickedBlock)) {
+      upgradeChest(playerEntity, clickedBlock, world, context, stack);
     }
   }
 
-  private boolean blockIsChest(BlockState clickedBlock) {
-    return clickedBlock.getBlock() instanceof ModChestBlock;
+  private boolean blockIsChestAndUpgradable(BlockState clickedBlock) {
+    if (this.upgraderTier == null) {
+      return clickedBlock.getBlock() instanceof ModChestBlock;
+    }
+
+    ChestTier clickedChestTier = ((ModChestBlock) clickedBlock.getBlock()).getTier();
+    return clickedBlock.getBlock() instanceof ModChestBlock && clickedChestTier == this.upgraderTier;
   }
 
-  public static void upgradeChest(PlayerEntity entity, int seconds, BlockState clickedBlock, World world,
-      ItemUseContext context) {
+  public static void upgradeChest(PlayerEntity entity, BlockState clickedBlock, World world,
+      ItemUseContext context, ItemStack stack) {
 
     Minecraft mc = Minecraft.getInstance();
+    BlockPos clickedPos = context.getClickedPos();
 
-    // Get Tier
+    // Get Next Tier
     String nextTier = ((ModChestBlock) clickedBlock.getBlock()).getNextTier();
     // Get Direction
     Direction direction = clickedBlock.getValue(FACING);
     // Get Items
-    NonNullList<ItemStack> chestContents = NonNullList.withSize(27, ItemStack.EMPTY);
+    ModChestTileEntity chestTileEntity = (ModChestTileEntity) world.getBlockEntity(clickedPos);
 
-    TileEntity chestTileEntity = world.getBlockEntity(context.getClickedPos());
+    NonNullList<ItemStack> chestContents = chestTileEntity.getItems();
 
     if (nextTier == null) {
       mc.player.chat("This chest is either max tier or can't be upgraded.");
@@ -93,14 +99,19 @@ public class ChestUpgrader extends Item {
         .defaultBlockState().setValue(FACING, direction);
 
     // Remove existing chest
-    world.removeBlockEntity(context.getClickedPos());
-    world.removeBlock(context.getClickedPos(), false);
+    world.removeBlockEntity(clickedPos);
+    world.removeBlock(clickedPos, false);
 
     // Add Updated chest back to world
-    entity.level.setBlock(context.getClickedPos(), newChest, 1);
+    world.setBlock(clickedPos, newChest, 1);
 
-    mc.player.chat("Hellos");
-    mc.player.chat(String.valueOf(((ModChestBlock) clickedBlock.getBlock()).getTier()));
+    chestTileEntity = (ModChestTileEntity) world.getBlockEntity(clickedPos);
+    chestTileEntity.setItems(chestContents);
+
+    world.blockEntityChanged(clickedPos, chestTileEntity);
+
+    // Damage item
+    stack.shrink(1);
   }
 
 }

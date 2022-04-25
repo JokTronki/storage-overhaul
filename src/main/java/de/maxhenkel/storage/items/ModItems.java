@@ -1,15 +1,17 @@
 package de.maxhenkel.storage.items;
 
+import de.maxhenkel.storage.ChestTier;
 import de.maxhenkel.storage.Main;
 import de.maxhenkel.storage.blocks.ModBlocks;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
 import net.minecraftforge.event.RegistryEvent;
 
 public class ModItems {
 
-  public static ChestUpgrader OAK_UPGRADER = new ChestUpgrader(
-      new Item.Properties().stacksTo(1).tab(ItemGroup.TAB_MISC));
+  public static ChestUpgrader DEBUG_UPGRADER = new ChestUpgrader();
+  public static ChestUpgrader BASE_UPGRADER = new ChestUpgrader(ChestTier.BASE_TIER);
+  public static ChestUpgrader TIER_1_UPGRADER = new ChestUpgrader(ChestTier.TIER_1);
+  public static ChestUpgrader TIER_2_UPGRADER = new ChestUpgrader(ChestTier.TIER_2);
 
   public static ModMinecartItem OAK_MINECART = new ModMinecartItem(() -> ModBlocks.OAK_CHEST);
   public static ModMinecartItem SPRUCE_MINECART = new ModMinecartItem(() -> ModBlocks.SPRUCE_CHEST);
@@ -49,7 +51,11 @@ public class ModItems {
 
   public static void registerItems(RegistryEvent.Register<Item> event) {
     event.getRegistry().registerAll(
-        OAK_UPGRADER.setRegistryName(Main.MODID, "oak_upgrader"),
+        DEBUG_UPGRADER.setRegistryName(Main.MODID, "debug_upgrader"),
+        BASE_UPGRADER.setRegistryName(Main.MODID, "base_upgrader"),
+        TIER_1_UPGRADER.setRegistryName(Main.MODID, "tier_1_upgrader"),
+        TIER_2_UPGRADER.setRegistryName(Main.MODID, "tier_2_upgrader"),
+
         OAK_MINECART.setRegistryName(Main.MODID, "oak_chest_minecart"),
         SPRUCE_MINECART.setRegistryName(Main.MODID, "spruce_chest_minecart"),
         BIRCH_MINECART.setRegistryName(Main.MODID, "birch_chest_minecart"),

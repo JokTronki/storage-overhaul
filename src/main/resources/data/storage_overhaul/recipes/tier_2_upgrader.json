@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["#I#", "###", "###"],
+  "key": {
+    "#": {
+      "tag": "minecraft:planks"
+    },
+    "I": {
+      "tag": "forge:ingots/diamond"
+    }
+  },
+  "result": {
+    "item": "storage_overhaul:tier_2_upgrader"
+  }
+}
