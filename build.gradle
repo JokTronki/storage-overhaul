@@ -42,7 +42,7 @@ minecraft {
         client {
             workingDirectory project.file('run').canonicalPath
             property 'forge.logging.console.level', 'debug'
-            args = ['--username', 'JokTronki']
+            args = ['--username', 'henkelmax']
             source sourceSets.main
             mods {
                 mod_id {
