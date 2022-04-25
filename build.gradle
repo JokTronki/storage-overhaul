@@ -6,7 +6,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.1.+', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
         classpath group: 'de.maxhenkel.forge-update', name: 'forge-update', version: '1.0.2'
         classpath group: 'com.github.jengelman.gradle.plugins', name: 'shadow', version: '4.0.4'
     }
@@ -42,7 +42,7 @@ minecraft {
         client {
             workingDirectory project.file('run').canonicalPath
             property 'forge.logging.console.level', 'debug'
-            args = ['--username', 'henkelmax']
+            args = ['--username', 'JokTronki']
             source sourceSets.main
             mods {
                 mod_id {
@@ -86,7 +86,7 @@ dependencies {
     runtimeOnly fg.deobf("de.maxhenkel.corelib:corelib:${mod_minecraft_version}-${corelib_version}")
     runtimeOnly fg.deobf("de.maxhenkel.corelib:corelib:${mod_minecraft_version}-${corelib_version}:javadoc")
 
-    compile fg.deobf("mcp.mobius.waila:Hwyla:${hwyla_version}")
+    implementation fg.deobf("mcp.mobius.waila:Hwyla:${hwyla_version}")
 }
 
 jar {
@@ -103,6 +103,7 @@ jar {
 
 processResources {
     inputs.property "version", project.version
+    duplicatesStrategy = 'include'
 
     from(sourceSets.main.resources.srcDirs) {
         include '**/*.toml'

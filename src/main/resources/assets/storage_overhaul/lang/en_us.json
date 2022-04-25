@@ -102,6 +102,7 @@
   "entity.storage_overhaul.chest_minecart": "Minecart with Chest",
   "entity.storage_overhaul.chest_minecart_generic": "Minecart with %s",
 
+  "item.storage_overhaul.oak_upgrader": "Oak Upgrader",
   "item.storage_overhaul.oak_chest_minecart": "Minecart with Oak Chest",
   "item.storage_overhaul.spruce_chest_minecart": "Minecart with Spruce Chest",
   "item.storage_overhaul.birch_chest_minecart": "Minecart with Birch Chest",
